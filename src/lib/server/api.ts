@@ -1,9 +1,16 @@
-import { NPC_INSTANCE, NPC_TEMPLATE } from '$lib/constants/COLLECTION'
-import type NpcInstance from '$lib/types/NpcInstance'
+import { COMBATANT, COMBATANT_TEMPLATE } from '$lib/constants/COLLECTION'
+import type Combatant from '$lib/types/Combatant'
+import type CombatantTemplate from '$lib/types/CombatantTemplate';
 import pb from './pocketbase'
 
-export const getAllNpcInstances = async () => {
-    const instances = await pb.collection(NPC_INSTANCE).getFullList<NpcInstance>({ expand: 'template.actions' });
+export const getCombatants = async () => {
+    const instances = await pb.collection(COMBATANT).getFullList<Combatant>({ expand: 'template.actions' });
 
-    return { instances }
+    return instances
+}
+
+export const getTemplates = async () => {
+    const instances = await pb.collection(COMBATANT_TEMPLATE).getFullList<CombatantTemplate>({ expand: 'actions' })
+
+    return instances
 }

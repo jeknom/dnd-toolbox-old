@@ -1,6 +1,11 @@
-import { getAllNpcInstances } from "$lib/server/api";
+import { getCombatants, getTemplates } from "$lib/server/api";
 
 /** @type {import('./$types').PageLoad} */
 export async function load() {
-    return await getAllNpcInstances()
+    const [combatants, templates] = await Promise.all([getCombatants(), getTemplates()])
+
+    return {
+        combatants,
+        templates,
+    }
 }

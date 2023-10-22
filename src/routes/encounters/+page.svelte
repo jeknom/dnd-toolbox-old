@@ -1,66 +1,76 @@
 <script lang="ts">
-	import type EncounterParticipant from '$lib/types/EncounterParticipant.js';
-	import Participant from '$lib/components/EncounterParticipant.svelte';
+	import type Combatant from '$lib/types/Combatant.js'
+	import Participant from '$lib/components/Combatant.svelte';
 	import AddToEncounter from '$lib/components/AddToEncounter.svelte';
-	import randomRange from '$lib/utils/randomRange.js';
+    import Encounter from '$lib/components/Encounter.svelte';
+    import type TEncounter from '$lib/types/Encounter';
     import { v4 as uuid4 } from 'uuid'
-	import type NpcInstance from '$lib/types/NpcInstance.js';
-	import sortAlphabetical from '$lib/utils/sortAlphabetical.js';
 	import Title from '$lib/components/Title.svelte';
 	import Button from '@smui/button';
+	import templateToCombatant from '$lib/utils/templateToCombatant.js';
 
     export let data;
-    export let participants: EncounterParticipant[] = [];
+    export let participants: Combatant[] = [];
+    
+    let encounterStarted = false
 
-    const instanceToParticipant = ({ name, expand, description }: NpcInstance) => ({
-        id: uuid4(),
-        name: name,
-        initiative: randomRange(1, 20),
-        npcTemplate: expand.template,
-        description: description,
-    })
-
-    const addParticipant = (participant: EncounterParticipant) => {
+    const addParticipant = (participant: Combatant) => {
+        console.log(participant)
         const clonedList = structuredClone(participants)
-        clonedList.push(participant)
-        clonedList.sort((a, b) => sortAlphabetical(a.name, b.name))
+        
+        let duplicateCount = 0
+        for (const p of clonedList) {
+            if (p.name.includes(participant.name)) {
+                duplicateCount++
+            }
+        }
+
+        let name = duplicateCount > 0 ? `${participant.name} (${duplicateCount.toString()})` : participant.name
+
+        clonedList.push({ 
+            ...participant,
+            name,
+            // New ID assigned for the encounter so we can diffrentiate between same type of instances
+            id: uuid4()
+        })
 
         participants = clonedList
     }
 
-    const removeParticipant = (participant: EncounterParticipant) => {
+    const removeParticipant = (participant: Combatant) => {
         participants = participants.filter(p => p.id !== participant.id)
     }
 </script>
 
-
-<div class="grid grid-cols-3 gap-4">
-    <div class="col-span-1 flex flex-col gap-4">
-        <div>
-            <Title text="Players" />
-            {#if true}
-                <p class="text-gray-500">Add some players</p>
-            {/if}
-        </div>
-        <div>
-            <Title text="NPCs" />
-            {#if data.instances.length === 0}
+{#if !encounterStarted}
+    <div class="grid grid-cols-3 gap-4">
+        <div class="col-span-1 flex flex-col gap-2">
+            <Title text="Combatants" />
+            {#if data.combatants.length === 0}
                 <p class="text-gray-500">Add some NPCs</p>
             {/if}
-            {#each data.instances as instance}
-                <AddToEncounter name={instance.name} onAdd={() => addParticipant(instanceToParticipant(instance))} />
+            {#each data.combatants as instance}
+                <AddToEncounter name={instance.name} onAdd={() => addParticipant(instance)} />
+            {/each}
+            <Title text="Templates" />
+            {#each data.templates as instance}
+                <AddToEncounter name={instance.name} onAdd={() => addParticipant(templateToCombatant(instance))} />
+            {/each}
+        </div>
+        <div class="col-span-2 flex flex-col max-h-fit overflow-y-auto gap-2">
+            <Title text="Encounter" />
+            {#if participants.length === 0}
+                <p class="text-gray-500">Add participants</p>
+            {/if}
+            {#each participants as participant}
+                <Participant participant={participant} onRemove={() => removeParticipant(participant)} />
             {/each}
         </div>
     </div>
-    <div class="col-span-2 flex flex-col max-h-fit overflow-y-auto">
-        <Title text="Encounter" />
-        {#if participants.length === 0}
-            <p class="text-gray-500">Add participants</p>
-        {/if}
-        {#each participants as participant}
-            <Participant participant={participant} onRemove={() => removeParticipant(participant)} />
-        {/each}
-    </div>
-</div>
+    <Button class="fixed right-5 bottom-5 w-22" variant='raised' on:click={() => encounterStarted = true}>Start Encounter!</Button>
+{/if}
 
-<Button class="fixed right-5 bottom-5 w-22" variant='raised'>Start Encounter!</Button>
+{#if encounterStarted}
+    <Encounter encounter={{ participants: participants.map(p => ({ combatant: p })) }} />
+    <Button class="fixed right-5 bottom-5 w-22" variant='raised' on:click={() => encounterStarted = false}>Stop</Button>
+{/if}

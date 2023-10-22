@@ -1,9 +1,9 @@
 import type DiceNotation from "./DiceNotation"
 
-type CharacterAction = {
+type CombatantAction = {
     name: string
     diceNotation?: DiceNotation
     description?: string
 }
 
-export default CharacterAction
+export default CombatantAction

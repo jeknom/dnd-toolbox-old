@@ -1,6 +1,6 @@
 <script lang="ts">
 	import CharacterAction from "./CharacterAction.svelte";
-	import type NpcTemplate from "$lib/types/NpcTemplate";
+	import type NpcTemplate from "$lib/types/CombatantTemplatemplate";
 
     export let template: NpcTemplate
 </script>
