@@ -9,6 +9,8 @@ function templateToCombatant(template: CombatantTemplate): Combatant {
         expand: {
             template,
         },
+        isPlayer: false,
+        isHostile: false,
         description: 'This is an instance generated from a template',
     }
 }

@@ -6,6 +6,7 @@
 	import Button from "@smui/button";
 
     export let encounter: Encounter
+    export let onStopEncounter: () => void
     
     let activeEncounter = structuredClone(encounter)
     let debounceTimer: number
@@ -68,15 +69,21 @@
 </script>
 
 <div class="flex flex-col gap-2">
-    <h1>Encounter started!</h1>
-    <div class="flex w-full justify-center items-center gap-2">
-        <Button variant='raised' on:click={previousCombatant}>Previous</Button>
-        <Button variant='raised' on:click={nextCombatant}>Next</Button>
-    </div>
     {#each activeEncounter.participants as participant (participant.combatant.id)}
         <div class="flex flex-row gap-4 p-4 rounded-sm {participant.combatant.id === currentTurnCombatantId ? 'bg-green-400 bg-opacity-20' : ''}">
-            <Textfield class='w-14' variant='outlined' value={participant.initiative} on:input={e => debounceInitiativeChange(participant.combatant.id, e)} />
-            <Combatant participant={participant.combatant} />
+            <div class="flex flex-row items-center gap-2">
+                <Textfield class='w-16' label='Init' variant='outlined' value={participant.initiative} on:input={e => debounceInitiativeChange(participant.combatant.id, e)} />
+                {#if !participant.combatant.isPlayer && participant.combatant.expand.template !== ''}
+                    <Textfield class="w-16" variant='outlined' label='HP' value={participant.combatant.expand.template.hp} />
+                {/if}
+            </div>
+            <Combatant participant={participant.combatant} isEncounter />
         </div>
     {/each}
+</div>
+
+<div class="fixed right-5 bottom-5 flex w-full justify-end items-center gap-2">
+    <Button variant='raised' on:click={previousCombatant}>Previous</Button>
+    <Button variant='raised' on:click={nextCombatant}>Next</Button>
+    <Button variant='raised' on:click={onStopEncounter}>Stop</Button>
 </div>

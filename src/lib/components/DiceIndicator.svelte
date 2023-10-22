@@ -7,12 +7,19 @@
     
     let lastRoll: number | null = null
 
-    const diceString = `${diceNotation.multiplier}d${diceNotation.die}`
+    let diceString = `${diceNotation.multiplier}d${diceNotation.die}`
+    if (diceNotation.bonus !== undefined) {
+        diceString = `${diceString} +${diceNotation.bonus}`
+    }
 
     function roll() {
         let total = 0;
         for (let i = 0; i < diceNotation.multiplier ?? 0; i++) {
             total += randomRange(1, diceNotation.die);
+        }
+
+        if (diceNotation.bonus !== undefined) {
+            total += diceNotation.bonus
         }
 
         lastRoll = total

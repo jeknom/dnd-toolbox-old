@@ -4,11 +4,14 @@
     import CharacterAction from '$lib/components/CharacterAction.svelte'
 	import Button, { Label } from "@smui/button";
 	import type CombatantAction from "$lib/types/CombatantAction";
+	import Textfield from "@smui/textfield";
 
     export let participant: Combatant
     export let onRemove: (() => void) | undefined = undefined
+    export let isEncounter = false
     
     let expanded = false
+    let participantName = structuredClone(participant.name)
 
     const tmpl = participant.expand?.template
     const hasTmpl = tmpl !== undefined && tmpl !== ''
@@ -16,9 +19,13 @@
     const hasActions = actions.length > 0
 </script>
 
-<div class="flex flex-row justify-between gap-4 items-center mb-4 {expanded ? 'bg-cyan-900 bg-opacity-50 rounded-md py-2' : ''}">
+<div class="flex flex-row justify-between gap-4 items-center mb-4 p-2 {expanded ? 'bg-opacity-50 rounded-md py-2' : ''}">
     <div class="flex flex-col gap-2">
-        <h6>{participant.name}</h6>
+        {#if isEncounter && !participant.isPlayer}
+            <Textfield bind:value={participantName} />
+        {:else}
+            <h6>{participant.name}</h6>
+        {/if} 
         {#if hasTmpl}
             <div class="flex flex-row gap-2 items-center">
                 <div class="flex flex-row text-sm gap-2 items-center">
@@ -34,10 +41,13 @@
                 </div>
             </div>
             {#if expanded && hasActions}
-                <h6>Actions</h6>
-                {#each actions as action}
-                    <CharacterAction action={action} />
-                {/each}
+                <li class="list-disc">
+                    {#each actions as action}
+                        <ul>
+                            <CharacterAction action={action} />
+                        </ul>
+                    {/each}
+                </li>
             {/if}
         {/if}
         <div class="flex flex-row gap-2">

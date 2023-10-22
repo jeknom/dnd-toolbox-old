@@ -6,6 +6,8 @@ type Combatant = {
     expand: {
         template: CombatantTemplate | ''
     }
+    isPlayer: boolean
+    isHostile: boolean
     description?: string
 }
 

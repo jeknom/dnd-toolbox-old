@@ -2,7 +2,8 @@ import type DiceNotation from "./DiceNotation"
 
 type CombatantAction = {
     name: string
-    diceNotation?: DiceNotation
+    damageDice?: DiceNotation
+    hitDice?: DiceNotation
     description?: string
 }
 

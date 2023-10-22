@@ -6,6 +6,11 @@
 
     let colorclass = 'text-orange-400'
     let statPrefix = stat.toUpperCase()
+    let valuePrefix = ''
+
+    if (stat !== 'hp' && stat !== 'ac') {
+        valuePrefix = value >= 0 ? '+' : ''
+    }
 
     switch (stat) {
         case 'hp':
@@ -36,5 +41,5 @@
 </script>
 
 <div class='text-sm border border-stone-300 rounded-md p-1'>
-    <p class={colorclass}>{statPrefix} {value}</p>
+    <p class={colorclass}>{statPrefix} {valuePrefix}{value}</p>
 </div>

@@ -37,32 +37,45 @@
         participants = clonedList
     }
 
+    const addAllPlayers = () => {
+        for (const player of data.combatants.filter(c => c.isPlayer)) {
+            addParticipant(player)
+        }
+    }
+
     const removeParticipant = (participant: Combatant) => {
         participants = participants.filter(p => p.id !== participant.id)
     }
 </script>
 
 {#if !encounterStarted}
-    <div class="grid grid-cols-3 gap-4">
-        <div class="col-span-1 flex flex-col gap-2">
-            <Title text="Combatants" />
+    <div class="grid grid-cols-6 gap-4 h-[95vh]">
+        <div class="col-span-2 flex flex-col gap-2 overflow-y-auto px-4">
+            <Title text="NPCs" />
             {#if data.combatants.length === 0}
                 <p class="text-gray-500">Add some NPCs</p>
             {/if}
-            {#each data.combatants as instance}
-                <AddToEncounter name={instance.name} onAdd={() => addParticipant(instance)} />
+            {#each data.combatants.filter(c => !c.isPlayer) as instance (instance.id)}
+                <AddToEncounter name={instance.name} isPlayer={instance.isPlayer} onAdd={() => addParticipant(instance)} />
+            {/each}
+            <Title text="Players" />
+            <div>
+                <Button on:click={addAllPlayers}>Add players</Button>
+            </div>
+            {#each data.combatants.filter(c => c.isPlayer) as instance (instance.id)}
+                <AddToEncounter name={instance.name} isPlayer={instance.isPlayer} onAdd={() => addParticipant(instance)} />
             {/each}
             <Title text="Templates" />
-            {#each data.templates as instance}
-                <AddToEncounter name={instance.name} onAdd={() => addParticipant(templateToCombatant(instance))} />
+            {#each data.templates as instance (instance.id)}
+                <AddToEncounter name={instance.name} isPlayer={false} onAdd={() => addParticipant(templateToCombatant(instance))} />
             {/each}
         </div>
-        <div class="col-span-2 flex flex-col max-h-fit overflow-y-auto gap-2">
+        <div class="col-span-4 flex flex-col max-h-fit overflow-y-auto gap-2">
             <Title text="Encounter" />
             {#if participants.length === 0}
                 <p class="text-gray-500">Add participants</p>
             {/if}
-            {#each participants as participant}
+            {#each participants as participant (participant.id)}
                 <Participant participant={participant} onRemove={() => removeParticipant(participant)} />
             {/each}
         </div>
@@ -71,6 +84,5 @@
 {/if}
 
 {#if encounterStarted}
-    <Encounter encounter={{ participants: participants.map(p => ({ combatant: p })) }} />
-    <Button class="fixed right-5 bottom-5 w-22" variant='raised' on:click={() => encounterStarted = false}>Stop</Button>
+    <Encounter encounter={{ participants: participants.map(p => ({ combatant: p })) }} onStopEncounter={() => encounterStarted = false} />
 {/if}

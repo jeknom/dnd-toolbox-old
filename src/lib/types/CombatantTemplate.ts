@@ -1,6 +1,7 @@
 import type CombatantAction from "./CombatantAction"
 
 type CombatantTemplate = {
+    id: string
     name: string
     ac: number
     hp: number
